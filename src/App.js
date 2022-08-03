@@ -1,15 +1,55 @@
-import logo from './logo.svg';
 import './App.css';
+import Safe, { SafeFactory } from '@gnosis.pm/safe-core-sdk';
+import EthersAdapter from '@gnosis.pm/safe-ethers-lib';
+import { ethers } from 'ethers'
+import { useState } from 'react';
 
 function App() {
-  const InitiateGnosisTransaction = () => {
-    console.log("hello")
+  const [buttonText, setButtonText] = useState("Connect")
+  const [provider, setProvider] = useState(null)
+
+  const buttonFunction = async () => {
+    if (window.web3) {
+      provider ? await InitiateGnosisTransaction(): await connectAccount();
+    } else {
+      alert("Please install metamask")
+    }
+  }
+
+  const connectAccount = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    if (!provider) {
+      throw new Error("Unable to connect to metamask")
+    }
+    setProvider(provider)
+    setButtonText("Initiate Gnosis transaction")
+  }
+
+  const InitiateGnosisTransaction = async() => {
+    const signer = provider.getSigner();
+    const ethAdapter = new EthersAdapter({ethers: ethers, signer: signer})
+    const safe = await Safe.create({ethAdapter: ethAdapter, safeAddress: "0x90fB167d002A08115638B58D2b6b50d40ee5a1d1"})
+    const transaction = await safe.createTransaction([
+      {
+        to: "0x7778B343eF92c338a2fbaC055B0e03BCaB73dE08",
+        value: "10000",
+        data: "0x"
+      },
+      {
+        to: "0x7778B343eF92c338a2fbaC055B0e03BCaB73dE08",
+        value: "10000",
+        data: "0x"
+      }
+    ])
+    console.log(transaction)
+    const transactionHash = await safe.getTransactionHash(transaction)
+    
   }
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={InitiateGnosisTransaction}>
-          Sign Gnosis Transaction
+        <button onClick={buttonFunction}>
+          {buttonText}
         </button>
       </header>
     </div>
