@@ -20,6 +20,8 @@ export const EIP712_SAFE_TX_TYPE = {
   ],
 };
 
+const safeAddress = "0x90fB167d002A08115638B58D2b6b50d40ee5a1d1";
+
 function App() {
   const [buttonText, setButtonText] = useState("Connect")
   const [provider, setProvider] = useState(null)
@@ -44,7 +46,7 @@ function App() {
   const InitiateGnosisTransaction = async() => {
     const signer = provider.getSigner();
     const ethAdapter = new EthersAdapter({ethers: ethers, signer: signer})
-    const safe = await Safe.create({ethAdapter: ethAdapter, safeAddress: "0x90fB167d002A08115638B58D2b6b50d40ee5a1d1"})
+    const safe = await Safe.create({ethAdapter: ethAdapter, safeAddress: safeAddress})
     const transaction = await safe.createTransaction([
       {
         to: "0x7778B343eF92c338a2fbaC055B0e03BCaB73dE08",
@@ -60,13 +62,38 @@ function App() {
     // Above creates a batched transaction to the multiSend smart contract built by Gnosis
 
     const transactionHash = await safe.getTransactionHash(transaction)
-    signer._signTypedData({
+    const signature = await signer._signTypedData({
       version: '1',
       chainId: 4,
       },
       EIP712_SAFE_TX_TYPE,
       transaction.data
-      )
+    )
+    console.log(window.ethereum.selectedAddress)
+    const data = {
+      safe: safeAddress,
+      signature: signature,
+      sender: ethers.utils.getAddress(window.ethereum.selectedAddress),
+      contractTransactionHash: transactionHash,
+      to: ethers.utils.getAddress(transaction.data.to),
+      value: transaction.data.value.toString(),
+      data: transaction.data.data,
+      operation: 0,
+      safeTxGas: 0,
+      baseGas: 0,
+      gasPrice: 0,
+      chainId: 4,
+      gasToken: transaction.data.gasToken,
+      refundReceiver: transaction.data.refundReceiver,
+      nonce: transaction.data.nonce,
+    };
+
+    const response = await fetch(`https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safeAddress}/multisig-transactions/`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.log(response)
   }
   return (
     <div className="App">
