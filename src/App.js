@@ -3,6 +3,7 @@ import Safe, { SafeFactory } from '@gnosis.pm/safe-core-sdk';
 import EthersAdapter from '@gnosis.pm/safe-ethers-lib';
 import { ethers } from 'ethers'
 import { useState } from 'react';
+import { getTransactionHash } from './utils/transaction-hasher';
 
 export const EIP712_SAFE_TX_TYPE = {
   // "SafeTx(address to,uint256 value,bytes data,uint8 operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,uint256 nonce)"
@@ -68,7 +69,7 @@ function App() {
     })
     // Above creates a batched transaction to the multiSend smart contract built by Gnosis
     console.log(transaction.data)
-    const transactionHash = await safe.getTransactionHash(transaction)
+    const transactionHash = await getTransactionHash(transaction,safeAddress)
     console.log(transactionHash)
     const signature = await signer._signTypedData({
       version: '1',
@@ -90,8 +91,6 @@ function App() {
       baseGas: 0,
       gasPrice: 0,
       chainId: 4,
-      // gasToken: transaction.data.gasToken,
-      // refundReceiver: transaction.data.refundReceiver,
       nonce: transaction.data.nonce,
     };
 
