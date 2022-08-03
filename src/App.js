@@ -22,7 +22,7 @@ export const EIP712_SAFE_TX_TYPE = {
 
 function App() {
   const [buttonText, setButtonText] = useState("Connect")
-  const [provider, setProvider] = useState<null | ethers.providers.Web3Provider>(null)
+  const [provider, setProvider] = useState(null)
 
   const buttonFunction = async () => {
     if (window.web3) {
@@ -63,11 +63,9 @@ function App() {
     signer._signTypedData({
       version: '1',
       chainId: 4,
-      verifyingContract: '0x90fB167d002A08115638B58D2b6b50d40ee5a1d1',
-
       },
       EIP712_SAFE_TX_TYPE,
-      transaction
+      transaction.data
       )
   }
   return (
