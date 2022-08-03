@@ -68,31 +68,27 @@ function App() {
       // refundReceiver:
     })
     // Above creates a batched transaction to the multiSend smart contract built by Gnosis
-    console.log(transaction.data)
+    console.log("actual tx data:",transaction.data)
     const transactionHash = await getTransactionHash(transaction,safeAddress)
     console.log(transactionHash)
-    const signature = await signer._signTypedData({
-      version: '1',
-      chainId: 4,
-      },
-      EIP712_SAFE_TX_TYPE,
-      transaction.data
-    )
+    const signature = await safe.signTransactionHash(transactionHash)
     const data = {
       safe: safeAddress,
-      signature: signature,
+      signature: signature.data,
       sender: ethers.utils.getAddress(window.ethereum.selectedAddress),
       contractTransactionHash: transactionHash,
       to: ethers.utils.getAddress(transaction.data.to),
       value: transaction.data.value.toString(),
       data: transaction.data.data,
-      operation: 0,
+      operation: 1,
       safeTxGas: 0,
       baseGas: 0,
       gasPrice: 0,
       chainId: 4,
       nonce: transaction.data.nonce,
+      refundReceiver: transaction.data.refundReceiver
     };
+    console.log("data here: ",data)
 
     const response = await fetch(`https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safeAddress}/multisig-transactions/`, {
       method: 'POST',

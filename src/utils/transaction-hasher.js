@@ -16,5 +16,6 @@ const EIP712_SAFE_TX_TYPE = {
 }
 
 export async function getTransactionHash(transaction, safeAddress) {
+    console.log(transaction.data)
     return await ethers.utils._TypedDataEncoder.hash({verifyingContract: ethers.utils.getAddress(safeAddress)}, EIP712_SAFE_TX_TYPE, transaction.data)
 }
