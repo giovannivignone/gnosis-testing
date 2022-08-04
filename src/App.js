@@ -59,14 +59,7 @@ function App() {
         value: "10000",
         data: "0x"
       }
-    ],{
-      baseGas: 0,
-      gasPrice: 0,
-      chainId: 4,
-      operation: 0
-      // gasToken: 
-      // refundReceiver:
-    })
+    ])
     // Above creates a batched transaction to the multiSend smart contract built by Gnosis
     console.log("actual tx data:",transaction.data)
     const transactionHash = await safe.getTransactionHash(transaction)
@@ -81,11 +74,10 @@ function App() {
       to: ethers.utils.getAddress(transaction.data.to),
       value: transaction.data.value.toString(),
       data: transaction.data.data,
-      operation: 1,
-      safeTxGas: 0,
-      baseGas: 0,
-      gasPrice: 0,
-      chainId: 4,
+      operation: transaction.data.operation,
+      safeTxGas: transaction.data.safeTxGas,
+      baseGas: transaction.data.baseGas,
+      gasPrice: transaction.data.gasPrice,
       nonce: transaction.data.nonce,
       refundReceiver: transaction.data.refundReceiver
     };
