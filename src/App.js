@@ -69,8 +69,9 @@ function App() {
     })
     // Above creates a batched transaction to the multiSend smart contract built by Gnosis
     console.log("actual tx data:",transaction.data)
-    const transactionHash = await getTransactionHash(transaction,safeAddress)
+    const transactionHash = await safe.getTransactionHash(transaction)
     console.log(transactionHash)
+    console.log()
     const signature = await safe.signTransactionHash(transactionHash)
     const data = {
       safe: safeAddress,
